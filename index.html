@@ -443,7 +443,7 @@ let AUTH=null,appStarted=false;
 if(!INCLAUDE&&window.supabase){try{AUTH=supabase.createClient(SB_URL,SB_KEY)}catch(e){}}
 function startApp(){if(appStarted)return;appStarted=true;if($('#loginGate'))$('#loginGate').style.display='none';go();dbLoad();if(!INCLAUDE)addLogoutBtn()}
 function showLoginGate(msg){appStarted=false;$('#loginGate').style.display='flex';if(msg)$('#loginErr').textContent=msg}
-function addLogoutBtn(){if($('#logoutBtn'))return;const b=document.createElement('button');b.id='logoutBtn';b.textContent='Cerrar sesión';b.onclick=async()=>{try{await AUTH.auth.signOut()}catch(e){}location.reload()};$('header').appendChild(b)}
+function addLogoutBtn(){if($('#logoutBtn'))return;const b=document.createElement('button');b.id='logoutBtn';b.textContent='Cerrar sesión';b.onclick=async()=>{b.disabled=true;b.textContent='Saliendo…';try{await AUTH.auth.signOut()}catch(e){console.error('signOut failed',e)}try{Object.keys(localStorage).forEach(k=>{if(k.startsWith('sb-'))localStorage.removeItem(k)})}catch(e){}location.reload()};$('header').appendChild(b)}
 async function preloadLogo(){try{$('#loginLogo').src=S.logo||DL}catch(e){}if(INCLAUDE)return;try{if(!AUTH)return;const{data}=await AUTH.from('planner_data').select('value').eq('key','logo').maybeSingle();if(data&&data.value&&data.value.l){S.logo=data.value.l;$('#loginLogo').src=S.logo;lg.src=S.logo}}catch(e){}}
 if(INCLAUDE){
 startApp();
