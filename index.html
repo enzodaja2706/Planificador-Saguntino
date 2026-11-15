@@ -103,7 +103,7 @@ header button.on{box-shadow:0 2px 8px rgba(214,32,42,.35)}
 </form>
 </div>
 <header><img id="lg" alt="Escudo" title="Toca para cambiar el escudo" style="height:42px;width:42px;object-fit:contain;cursor:pointer"><h1>Atlético Saguntino<br><small>Cuerpo técnico · Planificador</small></h1><select id="mem"></select><button id="addm">+ Carpeta</button><button id="v0" class="on">Resumen</button><button id="v1">Tareas</button><button id="v2">Microciclo</button><button id="v3">Calendario</button><button id="v4">GPS y Wellness</button><button id="v5">Gimnasio</button><button id="v6">Análisis</button><button id="v7">Fisioterapia</button><button id="v8">Plantilla</button><button id="v9">Once titular</button><button id="v10">Estadísticas</button><button id="v11">Planificador semanal</button><button id="v12">Carga específica</button>
-<span style="flex:1"></span><button id="exp">Exportar</button><button id="imp">Importar</button><input type="file" id="fi" accept=".json" hidden></header>
+<span style="flex:1"></span><button id="exp">Exportar</button><button id="imp">Importar</button><input type="file" id="fi" accept=".json" hidden><button id="rst">Restaurar backup</button><input type="file" id="fr" accept=".json" hidden></header>
 <main id="app"></main>
 <script>
 const CATS=[['Táctica','#2f6fb5'],['Técnica','#c9822b'],['Físico','#b5412f'],['Posesión','#2f9b8f'],['ABP','#7a4fb5'],['Finalización','#b5892f'],['Recuperación','#5f8f3a'],['Porteros','#555d66'],['Vídeo','#3a7fa8'],['Fisioterapia','#a8456f'],['Prevención','#8a8f3a']];
@@ -224,6 +224,8 @@ function toast(m){const d=document.createElement('div');d.textContent=m;d.style.
 function svWeb(n,d){try{const blob=new Blob([d],{type:n.endsWith('.html')?'text/html':n.endsWith('.json')?'application/json':'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Archivo descargado')}catch(e){toast('No se pudo descargar el archivo')}}
 async function sv(n,d){try{if(!window.claude)return svWeb(n,d);const m=await claude.use('downloads');if(!m)return svWeb(n,d);await m.save({filename:n,data:d});toast('Archivo guardado')}catch(e){if(!e||e.code!='declined')svWeb(n,d)}}
 $('#exp').onclick=()=>sv('planificador.json',JSON.stringify(S));
+$('#rst').onclick=()=>$('#fr').click();
+$('#fr').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const b=JSON.parse(r.result);ask('Esto reemplaza TODOS los datos actuales por los del backup. ¿Continuar?',false,()=>{if(b.core)Object.assign(S,b.core);if(b.logo&&b.logo.l)S.logo=b.logo.l;S.data=S.data||{};if(b.gps&&b.gps.cols)S.data.gps=b.gps;if(b.well&&b.well.cols)S.data.well=b.well;mig();cur=S.members.some(m=>m.id=='ent1')?'ent1':S.members[0].id;lg.src=S.logo||DL;save();go();toast('Backup restaurado ✓')})}catch(x){alert('Archivo no válido')}};r.readAsText(f);e.target.value=''};
 var DB=null,dT=0;const sp=document.createElement('span');sp.id='st';sp.style.cssText='font-size:12px';$('header').appendChild(sp);
 function st(t,p){sp.textContent=t;clearTimeout(st.t);if(!p)st.t=setTimeout(()=>sp.textContent='',3000)}
 const INCLAUDE=!!window.claude;
